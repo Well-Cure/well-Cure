@@ -1,0 +1,155 @@
+create database hospitalManagement;
+
+use hospitalManagement;
+
+
+
+create table Users(
+  USRId int not null primary key auto_increment,
+  UName varchar(25) not null unique,
+  Mobile varchar(10) not null,
+  Email varchar(35) not null,
+  Role ENUM('Patient','Doctor','Admin') not null default 'Patient',
+  password varchar(25) not null,
+  Login_date_time datetime
+);
+
+desc Users;
+
+create table Patients(
+  PtntId int not null primary key auto_increment ,
+  UsrId int ,
+  First_name varchar(25) not null,
+  Last_name varchar(25) not null,
+  Gender ENUM('Male','Female','Others') not null,
+  Ptnt_Weight double not null,
+  Ptnt_Height double not null,
+  DOB date not null,
+  Home_Phone varchar(10),
+  Emrgncy_phone varchar(10),
+  Emrgncy_email varchar(35),
+  Address LongText not null,
+  State varchar(30),
+  City varchar(30),
+  Pincode integer(6) not null,
+  foreign key(UsrId) references Users(UsrId) on delete cascade on update cascade
+);
+
+desc Patients;
+
+create table Doctors(
+  DocId int not null primary key auto_increment,
+  UsrId int not null,
+  First_name varchar(25) not null,
+  Last_name varchar(25) not null,
+  DOB date,
+  IsActive boolean,
+  Gender ENUM('Male','Female','Others') not null,
+  Doctor_Type ENUM('Gynaecologist','Obstetrician','Paediatrician','Dermatologist','Orthopaedist','Opthalmologist','Cardialogist','Neurologist','General_Practitioner') not null,
+   Home_Phone varchar(10),
+  Emrgncy_phone varchar(10),
+  Emrgncy_email varchar(35),
+  Address LongText,
+  State varchar(30),
+  City varchar(30),
+  Pincode integer(6),
+  foreign key (UsrId) references Users(UsrId) on delete cascade on update cascade
+);
+
+
+
+desc Doctors;
+
+create table Admin(
+  AdmnId int not null primary key auto_increment,
+  UsrId int not null,
+  First_name varchar(25) not null,
+  Last_name varchar(25) not null,
+  Mobile varchar(10) not null,
+  Email varchar(35) not null,
+  Address LongText not null,
+  State varchar(30) not null,
+  City varchar(30) not null,
+  Pincode integer(6) not null,
+  foreign key(UsrId) references Users(UsrId) on delete cascade on update cascade
+);
+
+desc Admin;
+
+create table Appointment(
+  ApptmntId int not null primary key auto_increment,
+  PtntId int not null,
+  DocId int not null,
+  Apptmnt_Date timestamp,
+  Apptmnt_Status ENUM('Booked','Canceled','Rescheduled','Pending') not null,
+  Apptmnt_Type ENUM('Emergency','Check_Up','Follow_Up','Routine','Walk_In') not null,
+  Apptmnt_for_Dscription LongText not null,
+  Apptmnt_fee_inRupees double default 500 ,
+  foreign key (PtntId) references Patients(PtntId) on delete cascade on update cascade,
+  foreign key(DocId) references Doctors(DocId) on delete cascade on update cascade
+);
+
+desc Appointment;
+
+create table Priscription(
+  Prscrptn_number int not null primary key auto_increment,
+  ApptmntId int not null,
+  Validity_start_date date,
+  Validity_end_date date,
+  foreign key (ApptmntId) references Appointment(ApptmntId) on delete cascade on update cascade
+);
+
+desc Priscription;
+
+create table Medication_Product(
+  Prscrptn_number int not null,
+  Medicin_Name varchar(30) not null,
+  Days_supply int not null,
+  Dosages_Instructions LongText not null,
+  Quantity int not null,
+  Medicin_price double not null,
+  foreign key(Prscrptn_number) references Priscription(Prscrptn_number) on delete cascade on update cascade
+);
+
+desc Medication_Product;
+
+create table Feedback(
+  PtntId int not null,
+  DocId int not null,
+  Fdbck LongText not null,
+  IsSatisfied ENUM('Fully_Satisfied','Moderately_Satisfied','Not_Satisfied') not null,
+  foreign key (PtntId) references Patients(PtntId) on delete cascade on update cascade,
+  foreign key(DocId) references Doctors(DocId) on delete cascade on update cascade
+);
+ 
+desc Feedback;
+
+create table Tests(
+  Test_id int not null primary key auto_increment,
+  ApptmntId int not null,
+  Test_type ENUM('Blood_test','Suger_test','X_ray','MRI','Bone_marrow_test'),
+  AdmnId int not null,
+  foreign key (ApptmntId) references Appointment(ApptmntId) on delete cascade on update cascade,
+  foreign key (AdmnId) references Admin(AdmnId) on delete cascade on update cascade
+);
+alter table Tests modify Test_type ENUM('Blood_test','Suger_test','X_ray','MRI','Bone_marrow_test') not null;
+
+desc Tests;
+
+create table Billings(
+  Bill_number int not null primary key auto_increment,
+  Test_id int not null,
+  PtntId int not null,
+  Prscrptn_number int not null,
+  AdmnId int not null,
+  Prscrptn_Charge double not null ,
+  Tests_charges double not null,
+  foreign key(Test_id) references Tests(Test_id) on delete cascade on update cascade,
+  foreign key(PtntId) references Patients(PtntId) on delete cascade on update cascade,
+  foreign key(Prscrptn_number) references Priscription(Prscrptn_number) on delete cascade on update cascade,
+  foreign key(AdmnId) references Admin(AdmnId) on delete cascade on update cascade
+);
+
+desc Billings;
+
+
