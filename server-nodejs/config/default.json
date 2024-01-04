@@ -1,0 +1,7 @@
+{
+    "PORT": 4444,
+    "SERVER": "localhost",
+    "DATABASE": "hospitalManagement",
+    "USER": "root",
+    "PASSWORD": "@Raj231020"
+}
